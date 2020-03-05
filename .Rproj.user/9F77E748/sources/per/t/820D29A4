@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1574447807677.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "820D29A4",
+    "lastKnownWriteTime" : 0,
+    "last_content_update" : 1574447807677,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "D058199E",
+        "caption" : "df_wrangling",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=df_wrangling&cache_key=D058199E",
+        "displayedObservations" : "21395",
+        "environment" : "",
+        "expression" : "df_wrangling",
+        "object" : "df_wrangling",
+        "preview" : "0",
+        "totalObservations" : "21395",
+        "variables" : "14"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

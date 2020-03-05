@@ -1,0 +1,570 @@
+---
+title: "MDS - Técnicas de agrupación y de reducción de la dimensión (2019/2020)"
+author: "Jordi Tarroch Mejón"
+date: "24 November 2019"
+output:
+  pdf_document:
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: no
+---
+# TASK 2:
+
+# OBJECTIVES
+The goal is to propose a logistic regression model to classify if homes have hired a health insurance or not.
+
+# EXECUTIVE SUMMARY
+## CONCLUSIONS
+Due to our unbalanced data set, we realize that our classifier isn't able to do a very good job at distinguishing between positive and negative examples, so it usually predicts the majority class for any example ( No Seguros Salud). However, our Area Under the Curve is an acceptable 0.770497. In general, an AUC of 0.5 suggests no discrimination, 0.7 to 0.8 is considered acceptable, 0.8 to 0.9 is considered excellent, and more than 0.9 is considered outstanding. So we end up with an acceptable model.
+
+## THEORETICAL JUSTIFICATION OF THE MODEL
+The model is based on the logistic regression method for fitting a regression curve, y = f(x), where 'y' is a categorical variable, in our case, “Seguros Salud”. The typical use of this model is predicting 'y' given a set of predictors 'x'. The predictors can be continuous, categorical or a mix of both. 
+
+## THE MODEL
+The final model is based on these predictive variables with their corresponding significance:
+
+```{r echo = FALSE, out.width='55%'}
+knitr::include_graphics('images/stars_coef.png')
+```
+
+In our EDA we saw at first sight we see that 'TAMAMU', 'ESTUDREDSP', 'INTERIPNSP', 'INTERIN' and 'SUPERF' variables seem to classify homes with and without insurance health well. From these variables, our model concluded that these are significant:
+'TAMAMU', 'ESTUDREDSP', 'INTERIN' and 'SUPERF'. For some reason it doesn't consider INTERIPNSP important.
+
+### ODDS OF HEALTH INSURANCE BASED ON COEFFICIENTS GIVEN TO VARIABLES
+Given the coefficients beta returned by the model we can interpret their effect as the following:
+The odds increase or decrease by the amount of e^beta by changing one unit the variable associated to that beta. If we increase or decrease more than one unit the variable, the odds increase or decrease by the amount e^(beta· nºunits).
+
+In the following table we can see the amount odds increase or decrease by the amount of e^beta:
+```{r echo = FALSE, out.width='20%'}
+knitr::include_graphics('images/coef.png')
+```
+
+### PERFORMANCE STATISTICS
+It has the following performance statistics:
+
+####  Accuracy
+
+The accuracy of the model is:
+0.906524584034399
+
+However, due to our unbalanced data set, we realize that our classifier isn't able to do a very good job at distinguishing between positive and negative examples, so it usually predicts the majority class for any example. 
+
+```{r echo = FALSE, out.width='20%'}
+knitr::include_graphics('images/unbalanced.png')
+```
+
+The problem here is that accuracy is not a good measure of performance on unbalanced classes. It's usually better to look at the confusion matrix to better understand how the classifier is working, or look at metrics other than accuracy such as the precision and recall, F1 score (which is just the harmonic mean of precision and recall), or AUC. That's why we are going to calculate the AUC and the confusion matrix.
+
+#### AUC of the ROC
+
+Our Area Under the Curve is an acceptable 0.7739546. In general, an AUC of 0.5 suggests no discrimination, 0.7 to 0.8 is considered acceptable, 0.8 to 0.9 is considered excellent, and more than 0.9 is considered outstanding.
+
+ROC curve, is a graphical plot that illustrates the diagnostic ability of a binary classifier system as its discrimination threshold is varied. It quantifies the tradeoff we’re making between the TPR (True Positive Rate) and the false positive rate (FPR) at various cutoff settings ( between 0 and 1 ).
+
+
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/ROC.png')
+```
+
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/TPR.png')
+```
+
+As TPR increases, FPR increases too, so we want to reach the highest TPR before the FPR increases too much. This means that we want our AUC to be really close to 1.
+
+##### Optimal Cut-off
+
+Our minimum cost in training set is 0.08949271 with an optimal cut-off of 0.49100000
+
+In order to find the minimum cost in training set we do the following: 
+Choose some probability cut-offs from 0.001 to 0.8 with sjome increment say 0.01 and calculate the FP(False Positives) and the FN (False Negatives). 
+Depending on the company costs, we will give more weights to FP or FN, which detecting them or not also depend from the cut-off probability. In our case, we’ve given a higher weight to FP.
+
+
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/Cost.png')
+```
+
+#### Confusion Matrix
+
+Using an optimal cut-off of 0.49100000, we get:
+
+|                  | Predicted |     Predicted    |
+|------------------|:---------:|:----------------:|
+| Actual           |     0     | 1 (Seguro Salud) |
+| 0                |  4841(TN) |      7 (FP)      |
+| 1 (Seguro Salud) |  493 (FP) |      8 (TP)      |
+
+
+In this confusion matrix, of the 493+8 actual health insurances, the system predicted that 8 were health insurance, and of the 4841+7 no health insurances, it predicted that 4841 were no health insurances. All correct predictions are located in the diagonal of the table (highlighted in bold), so it is easy to visually inspect the table for prediction errors, as they will be represented by values outside the diagonal.
+
+
+
+
+
+# RESEARCH REPORT
+
+## DATA DICTIONARY
+| Fichero de hogar | Descripción variable                                                            |
+|------------------|---------------------------------------------------------------------------------|
+| ANOENC           | Año dela encuesta                                                               |
+| NUMERO           | Número secuencial que indica el orden del hogar en el fichero                   |
+| Seguro_salud     | Variable objetivo a clasificar                                                  |
+| TAMAMU           | Tamaño del municipio                                                            |
+| NMIEMB           | Número de miembros del hogar                                                    |
+| NMIEM2           | Número de miembros del hogar menores de 14 años                                 |
+| NUMOCUP          | Número de miembros ocupados en el hogar                                         |
+| TIPHOGAR2        | Tipo de hogar (segunda clasificación)                                           |
+| EDADSP           | Edad (calculada a fecha de cumplimentación de la ficha de hogar)                |
+| SEXOSP           | Sexo                                                                            |
+| ESTUDREDSP       | Estudios completados reducida                                                   |
+| OCUSP            | ¿Estaba el sustentador principal ocupado en la semana anterior a la entrevista? |
+| INTERINPSP       | Intervalo de ingresos mensuales netos totales del sustentador principal         |
+| REGTEN           | Régimen de tenencia                                                             |
+| SUPERF           | Superficie útil de la vivienda                                                  |
+| INTERIN          | Intervalo de ingresos mensuales netos totales del hogar                         |
+
+```{r  echo = FALSE, message = FALSE, warning = FALSE}
+##############
+#LIBRARIES####
+##############
+library(readr)
+library(skimr)# Beautiful Summarize
+#Plots
+library(ggplot2)
+library(easyGgplot2)
+library(dplyr) #mutate
+library(forcats)
+library(ggpubr)
+#Correlations
+library(corrplot)# Correlations
+library(ggcorrplot)  # Correlations
+library(PerformanceAnalytics) # Correlations
+
+
+library('ROCR')
+```
+
+```{r  echo = FALSE, message = FALSE, warning = FALSE,  include = FALSE, results="hide"}
+
+###########
+# GET DATA#
+###########
+path <-  "segurosalud.csv"
+raw_data <- read.csv(path, header = TRUE, row.names = NULL, sep = ";")
+
+#################
+# DATA WRANGLING#
+#################
+######
+#ROWS#
+######
+# CHECK DUPLICATED DATA: no duplicated data to delete.
+# CHECK NA's: NAs to work with.
+
+##############
+# WRANGLING 1#
+##############
+# #   INTERINPSP     140 NAs out of 21395 observations.
+# percentage_Nas = 140 / length(raw_data$ANOENC) * 100
+# percentage_Nas
+# 
+# # As the number of NAs is under 1% of our number of observations in the sample. We can perfectly delete the rows of our dataframe that contain any NA.
+# raw_data = na.omit(raw_data)
+# 
+# try <- raw_data
+# try<-try[!( try$NUMOCUP < 0 | try$TIPHOGAR3 < 0 | try$INTERINPSP < 0 | try$SUPERF < 0 | try$INTERIN < 0),]
+# 
+# percentage_Nas = (length(raw_data$ANOENC) - length(try$ANOENC)) / length(raw_data$ANOENC) * 100
+# percentage_Nas
+# 
+# # We are going to delete 6.4% of the observations in our sample due to the people not answering some of the questions (-9 value).
+
+##############
+# WRANGLING 2#
+##############
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+df_wrangling <- raw_data
+df_wrangling$INTERINPSP[is.na(df_wrangling$INTERINPSP)] <- Mode(df_wrangling$INTERINPSP)
+df_wrangling$INTERINPSP[df_wrangling$INTERINPSP == -9 ] <- Mode(df_wrangling$INTERINPSP)
+
+df_wrangling$NUMOCUP[df_wrangling$NUMOCUP == -9 ] <- Mode(df_wrangling$NUMOCUP)
+df_wrangling$TIPHOGAR3[df_wrangling$TIPHOGAR3 == -9 ] <- Mode(df_wrangling$TIPHOGAR3)
+df_wrangling$SUPERF[df_wrangling$SUPERF == -9 ] <- mean(df_wrangling$SUPERF)
+
+
+#SCALING OF DICOTOMIC VARIABLES (1 or 0)
+df_wrangling$SEXOSP[df_wrangling$SEXOSP == unique(df_wrangling$SEXOSP)[2]] <- 0
+df_wrangling$OCUSP[df_wrangling$OCUSP == unique(df_wrangling$OCUSP)[2]] <- 0
+
+
+#########
+#COLUMNS#
+#########
+df_wrangling <- df_wrangling[, -c(1:2)] #Erase non-sense data
+
+# try[,-13] <- apply(try [, -13], 2, factor)
+
+df_wrangling$Seguro_salud <- factor(df_wrangling$Seguro_salud)
+df <- df_wrangling
+
+```
+
+## EXPLORATORY DATA ANALYSIS
+
+At first sight we see that 'TAMAMU', 'ESTUDREDSP', 'INTERIPNSP', 'INTERIN' and 'SUPERF' variables seem to classify homes with and without insurance health well.
+
+### NUMERIC AND ORDINAL ENCODED VARIABLES (CATEGORICAL VARIABLES)
+
+#### RELATIONSHIPS BETWEEN VARIABLES AND HISTOGRAMS
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot <- function(df_function, character, column){
+  df_function <- df_function[,c(1,column)]
+  colnames(df_function) <- c("TIPO", "Variable" )
+  #############
+  # HISTOGRAMS#
+  #############
+  bxp <- ggplot(df_function) +
+    geom_density(aes(x = Variable, fill = TIPO), alpha = 0.2)+
+    xlab(character)
+  dp <- ggplot2.histogram(data=df_function, xName= 'Variable', addMeanLine=TRUE, meanLineColor="green",
+                    meanLineType="dashed", meanLineSize=1,
+                    addDensityCurve=TRUE, densityFill='blue', fill = 'blue')+ xlab(character)
+  
+  ##################################
+  # RELATIONSHIPS BETWEEN VARIABLES########################################
+  ##################################
+ bp <- df_function %>%
+   mutate(class = fct_reorder(TIPO,Variable, .fun='length' )) %>%
+   ggplot( aes(x=TIPO, y= Variable, fill=class)) +
+     geom_boxplot() +
+     xlab("TIPO") +
+     ylab(character)+
+     theme(legend.position="none") +
+     xlab("") +
+     xlab("")
+  
+  ggarrange(bxp, dp, bp ,
+          labels = c("A", "B", "C"),
+          ncol = 2, nrow = 2)
+}
+```
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/tamamu.png')
+knitr::include_graphics('images/nmiemb.png')
+```
+
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "TAMAMU", column = 2)
+```
+```{r echo = FALSE, out.width='50%'}
+
+```
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "NMIEMB", column = 3)
+```
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/nmiem.png')
+knitr::include_graphics('images/numocusp.png')
+```
+
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "NMIEM2", column = 4)
+```
+```{r echo = FALSE, out.width='50%'}
+
+```
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "NUMOCUP", column = 5)
+```
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/tiphogar3.png')
+knitr::include_graphics('images/edadsp.png')
+```
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "TIPHOGAR3", column = 6)
+```
+```{r echo = FALSE, out.width='50%'}
+
+```
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "EDADSP", column = 7)
+```
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/estudres.png')
+knitr::include_graphics('images/interinpsp.png')
+```
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "ESTUDREDSP", column = 9)
+```
+```{r echo = FALSE, out.width='50%'}
+
+```
+
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "INTERINPSP", column = 11)
+```
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/regten.png')
+knitr::include_graphics('images/superf.png')
+```
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "REGTEN", column = 12)
+```
+```{r echo = FALSE, out.width='50%'}
+
+```
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "SUPERF", column = 13)
+```
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/interin.png')
+```
+
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+eda_plot(df, "INTERIN", column = 14)
+```
+
+
+
+#### CORRELATION MATRIX OF NUMERIC VARIABLES AND ORDINAL ENCODED VARIABLES(CATEGORICAL VARIABLES)
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5, include = FALSE, results="hide"}
+vars <- c("SEXOSP","Seguro_salud","OCUSP")
+
+corrplot(cor(df %>% 
+               select_at(vars(-vars)), 
+             use = "complete.obs"), 
+         method = "circle",type = "upper")
+
+
+ggcorrplot(cor(df %>% 
+                 select_at(vars(-vars)), 
+               use = "complete.obs"),
+           hc.order = TRUE,
+           type = "lower",  lab = TRUE)
+
+res <- cor(df %>% 
+                 select_at(vars(-vars)), 
+               use = "complete.obs")
+round(res, 2)
+col<- colorRampPalette(c("blue", "white", "red"))(20)
+heatmap(x = res, col = col, symm = TRUE)
+
+
+```
+
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/cor1.png')
+knitr::include_graphics('images/cor2.png')
+```
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/cor3.png')
+```
+```{r echo = FALSE, out.width='50%'}
+knitr::include_graphics('images/cor4.png')
+```
+
+### DICOTOMIC VARIABLES (CATEGORICAL VARIABLES):
+
+#### HISTOGRAMS
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5}
+
+#############
+# HISTOGRAMS#
+#############
+df$SEXOSP <- factor(df$SEXOSP)
+df$OCUSP <- factor(df$OCUSP)
+p1 = ggplot(df, aes(x = SEXOSP, fill = Seguro_salud)) + 
+  geom_bar(position = "dodge")
+p2 = ggplot(df, aes(x = OCUSP, fill = Seguro_salud)) + 
+  geom_bar(position = "dodge")
+
+
+ggarrange(p1, p2,
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1)
+```
+
+#### RELATIONSHIPS BETWEEN VARIABLES
+```{r  echo = FALSE, message = FALSE, warning = FALSE}
+contingency_table_SEXOSP <- prop.table(table(df$Seguro_salud, df$SEXOSP))*100
+contingency_table_OCUSP <- prop.table(table(df$Seguro_salud, df$OCUSP))*100
+
+
+OCUSP_0_1_0 <- as.data.frame(contingency_table_OCUSP[,1])
+names(OCUSP_0_1_0) <- c("OCUSP_0")
+OCUSP_0_1_1 <- as.data.frame(contingency_table_OCUSP[,2])
+names(OCUSP_0_1_1) <- c("OCUSP_1")
+
+SEXOSP_0_1_0 <- as.data.frame(contingency_table_SEXOSP[,1])
+names(SEXOSP_0_1_0) <- c("SEXOSP_0")
+SEXOSP_0_1_1 <- as.data.frame(contingency_table_SEXOSP[,2])
+names(SEXOSP_0_1_1) <- c("SEXOSP_1")
+
+ocuspdf <- cbind(OCUSP_0_1_0, OCUSP_0_1_1)
+sexospdf <- cbind(SEXOSP_0_1_0, SEXOSP_0_1_1)
+sexospdf 
+ocuspdf
+```
+
+
+
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5,  include = FALSE, results="hide"}
+chart.Correlation(df %>% 
+                    select_at(vars(-vars)),
+                  histogram = TRUE, pch = 19)
+```
+
+
+
+
+## MODELING
+### TRAIN AND TEST
+We split the data into two chunks: training and testing set. The training set will be used to fit our model which we will be testing over the testing set.
+
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=5}
+## 75% of the sample size
+smp_size <- floor(0.75 * nrow(df))
+
+## set the seed to make your partition reproducible
+set.seed(123)
+train_ind <- sample(seq_len(nrow(df)), size = smp_size)
+
+train <- df[train_ind, ]
+test <- df[-train_ind, ]
+
+p1 = ggplot(train, aes(x = Seguro_salud, fill = Seguro_salud)) + 
+  geom_bar(position = "dodge")
+
+p2 = ggplot(test, aes(x = Seguro_salud, fill = Seguro_salud)) + 
+  geom_bar(position = "dodge")
+
+p3 = ggplot(df, aes(x = Seguro_salud, fill = Seguro_salud)) + 
+  geom_bar(position = "dodge")
+
+ggarrange(p1, p2, p3,
+          labels = c("TR", "TS", "DF"),
+          ncol = 2, nrow = 2)
+
+train_proportion <- length(train$Seguro_salud[train$Seguro_salud == 1])/length(train$Seguro_salud[train$Seguro_salud == 0])
+test_proportion <- length(test$Seguro_salud[test$Seguro_salud == 1])/length(test$Seguro_salud[test$Seguro_salud == 0])
+df_proportion <- length(df$Seguro_salud[df$Seguro_salud == 1])/length(df$Seguro_salud[df$Seguro_salud == 0])
+
+cat("Difference of proportion of people with Seguro_salud between train and test of: \n", train_proportion - test_proportion)
+cat("\n")
+cat("Difference of proportion of people with Seguro_salud between  df and train of: \n", df_proportion - train_proportion)
+cat("\n")
+cat("Difference of proportion of people with Seguro_salud between df and test of: \n", df_proportion - test_proportion)
+
+cat("\n")
+
+```
+
+We have more or less the same proportion of people with Seguro_salud in the original dataframe, in the test and in the dataset.
+
+
+
+### BINOMIAL MODEL
+```{r  echo = FALSE, message = FALSE, warning = FALSE}
+# Now, let's fit the model. Be sure to specify the parameter family=binomial in the glm() function.
+model <- glm(Seguro_salud ~.,family=binomial(link='logit'),data=df)
+# By using function summary() we obtain the results of our model:
+summary(model)
+coef <- as.data.frame(exp(coef(model)))
+
+# Now we can run the anova() function on the model to analyze the table of deviance
+# anova(model, test="Chisq")
+
+# Analyzing the table we can see the drop in deviance when adding each variable one at a time.
+# Again, adding Pclass, Sex and Age significantly reduces the residual deviance. 
+# The other variables seem to improve the model less even though SibSp has a low p-value.
+# A large p-value here indicates that the model without the variable explains more or less the same amount of variation.
+
+# While no exact equivalent to the R2 of linear regression exists, the McFadden R2 index can be used to assess the model fit.
+#install.packages("pscl")
+library(pscl)
+pR2(model)
+
+# In the steps above, we briefly evaluated the fitting of the model, 
+# now we would like to see how the model is doing when predicting y on a new set of data. 
+# By setting the parameter type='response', R will output probabilities in the form of P(y=1|X). 
+# Our decision boundary will be 0.5. If P(y=1|X) > 0.5 then y = 1 otherwise y=0. 
+# Note that for some applications different thresholds could be a better option.
+fitted.results <- predict(model,newdata=test[,-1],type='response')
+fitted.results <- ifelse(fitted.results > 0.54100000,1,0)# Optimal cut-off 0.54100000
+
+
+```
+
+#### PERFORMANCE STATISTICS
+
+##### CONFUSION MATRIX AND ACCURACY
+```{r  echo = FALSE, message = FALSE, warning = FALSE}
+logit.perf <- table(test$Seguro_salud, fitted.results, dnn=c("Actual", "Predicted"))
+logit.perf
+misClasificError <- mean(fitted.results != test$Seguro_salud)
+
+print(paste('Accuracy',1-misClasificError))
+```
+
+
+
+
+##### ROC CURVE
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5}
+############
+# ROC CURVE#####################################################################################################
+############
+fit_result <- predict(model,newdata=test[,-1],type='response')
+pred <- prediction(fit_result, test$Seguro_salud)
+perf <- performance(pred, "tpr", "fpr")
+plot(perf, colorize=TRUE)
+#Get the AUC
+unlist(slot(performance(pred, "auc"), "y.values"))
+# [1] 0.7739546
+```
+
+```{r  echo = FALSE, message = FALSE, warning = FALSE, fig.width=5, fig.height=2.5}
+##############################
+# OPTIMAL CUT-OFF PROBABILITY#############################################################
+##############################
+#######################
+# COST IN TRAINING SET#
+#######################
+searchgrid = seq(0.001,0.8, 0.01)
+#result is a 99x2 matrix, the 1st col stores the cut-off p, the 2nd column stores the cost
+result = cbind(searchgrid, NA)
+#in the cost function, both r and pi are vectors, r=truth, pi=predicted probability
+
+cost1 <- function(r, pi){
+  weight1 = 1
+  weight0 = 1
+  c1 = (r==1)&(pi<pcut) #logical vector - true if actual 1 but predict 0. FP (False Positive)
+  c0 = (r==0)&(pi>pcut) #logical vector - true if actual 0 but predict 1. FN (False Negative)
+  return(mean(weight1*c1+weight0*c0))
+}
+
+
+df.glm1<-glm(Seguro_salud~.,family=binomial,data = train)
+prob <- predict(df.glm1,type="response")
+
+for(i in 1:length(searchgrid))
+{
+  pcut <- result[i,1]
+  #assign the cost to the 2nd col
+  result[i,2] <- cost1(train$Seguro_salud, prob)
+}
+
+plot(result, ylab="Cost in Training Set")
+result[which.min(result[,2]),]# First is the cut-off, second is the cost.
+# searchgrid            
+# 0.49100000 0.08949271 
+```
+

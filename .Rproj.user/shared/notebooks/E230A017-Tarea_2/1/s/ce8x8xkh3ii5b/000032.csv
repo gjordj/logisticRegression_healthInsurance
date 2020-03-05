@@ -1,0 +1,6 @@
+"0","vars <- c(""SEXOSP"",""Seguro_salud"",""OCUSP"")"
+"0",""
+"0","corrplot(cor(df %>% "
+"0","               select_at(vars(-vars)), "
+"0","             use = ""complete.obs""), "
+"0","         method = ""circle"",type = ""upper"")"

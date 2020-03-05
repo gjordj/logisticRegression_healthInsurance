@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1574428750852.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2819749725",
+    "id" : "43D8ED9C",
+    "lastKnownWriteTime" : 1574616784,
+    "last_content_update" : 1579966451084,
+    "path" : "~/Google Drive/DATA SCIENCE-TRADING/1_CUNEF/Classification/Classification_Code/Tarea_2/Tarea_2.Rmd",
+    "project_path" : "Tarea_2.Rmd",
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "cursorPosition" : "479,39",
+        "docOutlineSize" : "139.9523830752931",
+        "docOutlineVisible" : "1",
+        "scrollLine" : "470",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

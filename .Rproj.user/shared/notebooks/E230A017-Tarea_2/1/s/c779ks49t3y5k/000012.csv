@@ -1,0 +1,7 @@
+"0","############"
+"0","# ROC CURVE#####################################################################################################"
+"0","############"
+"0","fit_result <- predict(model,newdata=test[,-1],type='response')"
+"0","pred <- prediction(fit_result, test$Seguro_salud)"
+"0","perf <- performance(pred, ""tpr"", ""fpr"")"
+"0","plot(perf, colorize=TRUE)"

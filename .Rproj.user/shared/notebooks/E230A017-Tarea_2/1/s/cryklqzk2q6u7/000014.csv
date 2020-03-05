@@ -1,0 +1,7 @@
+"0","#########
+#COLUMNS#
+#########
+df <- try[, !c(""ANOENC"", ""NUMERO"")]
+"
+"2","Error in !c(""ANOENC"", ""NUMERO"") : invalid argument type
+"
